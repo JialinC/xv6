@@ -41,3 +41,8 @@ You will need a RISC-V "newlib" tool chain from
 https://github.com/riscv/riscv-gnu-toolchain, and qemu compiled for
 riscv64-softmmu. Once they are installed, and in your shell
 search path, you can run "make qemu".
+
+--------------------------------------------------------------------
+
+Tool chain installation steps for Mac OS: 
+https://pdos.csail.mit.edu/6.828/2019/tools.html
