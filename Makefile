@@ -89,7 +89,7 @@ tags: $(OBJS) _init
 ULIB = $U/ulib.o $U/usys.o $U/printf.o $U/umalloc.o
 
 _%: %.o $(ULIB)
-	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $@ $^
+	$(LD) $(LDFLAGS) -N -e main -Ttext=1000 -o $@ $^
 	$(OBJDUMP) -S $@ > $*.asm
 	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $*.sym
 
@@ -134,6 +134,7 @@ UPROGS=\
 	$U/_test1\
 	$U/_test_1\
 	$U/_test_lottery\
+	$U/_test_memory\
 	$U/_test_2 
 
 fs.img: mkfs/mkfs README $(UPROGS)

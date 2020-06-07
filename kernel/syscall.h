@@ -23,4 +23,6 @@
 #define SYS_getreadcount 22 //p1b
 #define SYS_settickets 23 //p2b
 #define SYS_getpinfo 24 //p2b
-#define SYS_tester 25 //general purpose tester
+#define SYS_mprotect 25 //p3
+#define SYS_munprotect 26 //p3
+#define SYS_tester 27 //general purpose tester

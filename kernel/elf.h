@@ -10,12 +10,12 @@ struct elfhdr {
   ushort machine;
   uint version;
   uint64 entry;
-  uint64 phoff;
+  uint64 phoff; //Program header table file offset in bytes. The value of 0 indicates no program header.
   uint64 shoff;
   uint flags;
   ushort ehsize;
   ushort phentsize;
-  ushort phnum;
+  ushort phnum; //Number of entries in program header table. A value of 0 indicates the file has no program header table.
   ushort shentsize;
   ushort shnum;
   ushort shstrndx;

@@ -345,6 +345,12 @@ sfence_vma()
 #define PXSHIFT(level)  (PGSHIFT+(9*(level)))
 #define PX(level, va) ((((uint64) (va)) >> PXSHIFT(level)) & PXMASK)
 
+// extract the 12-bit page offset from a virtual address.
+#define POMASK          0xFFF // 12 bits
+#define POX(va) (((uint64) (va)) & POMASK) //get the last 12 bits
+#define POOX(va) (((uint64) (va)) | POMASK) //set the last 12 bits
+
+
 // one beyond the highest possible virtual address.
 // MAXVA is actually one bit less than the max allowed by
 // Sv39, to avoid having to sign-extend virtual addresses

@@ -27,6 +27,8 @@ int uptime(void);
 int getreadcount(void); //p1b edited
 int settickets(int); //p2b edited
 int getpinfo(struct pstat *); //p2b edited
+int mprotect(void*, int); //p3
+int munprotect(void*, int); //p3
 int tester(void); //p2b edited
 
 // ulib.c

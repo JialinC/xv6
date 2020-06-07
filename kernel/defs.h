@@ -172,6 +172,8 @@ uint64          walkaddr(pagetable_t, uint64);
 int             copyout(pagetable_t, uint64, char *, uint64);
 int             copyin(pagetable_t, char *, uint64, uint64);
 int             copyinstr(pagetable_t, char *, uint64, uint64);
+int 			mprotect(uint64, int); //p3
+int 			munprotect(uint64, int); //p3
 
 // plic.c
 void            plicinit(void);
@@ -188,7 +190,7 @@ void            virtio_disk_intr();
 //main.c
 extern volatile int readcounter; //p1b
 extern struct 	spinlock l_r_c; //p1b
-
+extern struct   spinlock sched_lock; //p2
 //rand.c
 extern uint32 	rnd_seed; //p2b
 void		set_rnd_seed(uint32); //p2b

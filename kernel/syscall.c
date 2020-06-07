@@ -68,6 +68,8 @@ int
 argaddr(int n, uint64 *ip)
 {
   *ip = argraw(n);
+  //if(*ip < PGSIZE)
+    //return -1;
   return 0;
 }
 
@@ -107,6 +109,8 @@ extern uint64 sys_uptime(void);
 extern uint64 sys_getreadcount(void); //p1b edited
 extern uint64 sys_settickets(void);//p2b
 extern uint64 sys_getpinfo(void); //p2b
+extern uint64 sys_mprotect(void); //p3
+extern uint64 sys_munprotect(void); //p3
 //extern uint64 sys_tester(void); //general purpose tester
 
 
@@ -136,6 +140,8 @@ static uint64 (*syscalls[])(void) = {
 [SYS_getreadcount]   sys_getreadcount, //p1b edited
 [SYS_settickets]   sys_settickets, //p2b edited
 [SYS_getpinfo]   sys_getpinfo, //p2b edited
+[SYS_mprotect]   sys_mprotect, //p3 edited
+[SYS_munprotect]   sys_munprotect, //p3 edited
 //[SYS_tester]	sys_tester, //general purpose tester
 };
 

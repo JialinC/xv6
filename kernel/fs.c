@@ -465,7 +465,7 @@ readi(struct inode *ip, int user_dst, uint64 dst, uint off, uint n)
   if(off > ip->size || off + n < off)
     return -1;
   if(off + n > ip->size)
-    n = ip->size - off;
+    n = ip->size - off; //only can read till the end of the file
 
   for(tot=0; tot<n; tot+=m, off+=m, dst+=m){
     bp = bread(ip->dev, bmap(ip, off/BSIZE));

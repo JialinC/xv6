@@ -67,6 +67,12 @@ usertrap(void)
     syscall();
   } else if((which_dev = devintr()) != 0){
     // ok
+  } else if(0xd ==r_scause()){ //p3 this is null pointer deference
+    printf("Illegal Address Accesses, pid=%d\n",p->pid);
+    p->killed = 1;
+  } else if(0xf ==r_scause()){ //p3 this is write to read only memory
+    printf("Do not have write permission to this address , pid=%d\n",p->pid);
+    p->killed = 1;
   } else {
     printf("usertrap(): unexpected scause %p pid=%d\n", r_scause(), p->pid);
     printf("            sepc=%p stval=%p\n", r_sepc(), r_stval());
