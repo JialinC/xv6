@@ -273,7 +273,7 @@ fork(void)
 
   // Copy user memory from parent to child.
   if(uvmcopy(p->pagetable, np->pagetable, p->sz) < 0){
-    printf("freeproc wrong here a\n");
+    //printf("freeproc wrong here a\n");
     freeproc(np);
     release(&np->lock);
     release(&sched_lock);
@@ -307,174 +307,6 @@ fork(void)
 
   return pid;
 }
-/////////////////////////////////////// kernel thread /////////////////////////////////////////////////////
-// Look in the process table for an UNUSED proc.
-// If found, initialize state required to run in the kernel,
-// and return with p->lock held.
-// If there are no free procs, return 0.
-static struct proc*
-allocthread(void)
-{
-  struct proc *p;
-  acquire(&sched_lock);
-  for(p = proc; p < &proc[NPROC]; p++) {
-    acquire(&p->lock);
-    if(p->state == UNUSED) {
-      goto found;
-    } else {
-      release(&p->lock);
-    }
-  }
-  release(&sched_lock);
-  return 0;
-
-found:
-  p->pid = allocpid();
-  p->ticket = 1; //p2b
-  p->start_tick = 0; //p2b
-  p->total_tick = 0; //p2b
-
-  // Allocate a trapframe page.
-  if((p->tf = (struct trapframe *)kalloc()) == 0){
-    release(&p->lock);
-    release(&sched_lock);
-    return 0;
-  }
-
-  // An empty user page table.
-  //p->pagetable = proc_pagetable(p);
-
-  // Set up new context to start executing at forkret,
-  // which returns to user space.
-  memset(&p->context, 0, sizeof p->context); //write all zeros
-  p->context.ra = (uint64)forkret; //return address
-  p->context.sp = p->kstack + PGSIZE;
-
-  return p;
-  //return with sched_lock and plock held
-}
-
-// Create a new thread, copying the parent.
-// Sets up thread kernel stack to return as if from the passed in function.
-int
-clone(void(*fcn)(void *, void *), void *arg1, void *arg2, void *stack)
-{
-  int i, pid;
-  struct proc *np;
-  struct proc *p = myproc();
-  printf("check point e\n");
-  printf("stack %p\n",stack);
-  if(((uint64)stack % PGSIZE) != 0) { //check the stack address is page aligned
-    return -1;
-  }
-  
-  // Allocate process.
-  if((np = allocthread()) == 0){ //this gonna hold the lock,do not allocate a pgtb
-  }
-
-  printf("check point f\n");
-  printf("p %p\n",p);
-  printf("np %p\n",np);
-  printf("p pid %p\n",p->pid);
-  printf("np pid %p\n",np->pid);
-
-  np->stack = (uint64)stack; //self added PCB field
-  np->pagetable = p->pagetable; //use the same pagetable
-  np->sz = p->sz;
-  //printf("inside clone proc sz: %d np size: %d\n", proc->sz, np->sz);
-  np->ticket = p->ticket; //p2b added
-  np->parent = p;
-  
-  //np->start_tick = 0;
-  //np->total_tick = 0;
-  // copy saved user registers.
-  *(np->tf) = *(p->tf);
-  uint64 sp;
-  sp = (uint64)stack + PGSIZE; //stack top
-  //set up argument
-  np->tf->a0 = (uint64)arg1;
-  np->tf->a1 = (uint64)arg2;
-  //set stack pointer to stack
-  np->tf->sp = sp;
-  //set instruction pointer to function
-  np->tf->epc = (uint64)fcn;
-  //printf("check point g\n");
-  //set up the stack pointer
-  //uint64 sp, stackbase, ustack[MAXARG+1];
-  //sp = (uint64)stack + PGSIZE; //stack top
-  //stackbase = (uint64)stack;
-  //push argument pointer
-  //ustack[0] = 0xffffffff;
-  //ustack[1] = (uint)arg;
-  //sp -= 8;
-  //if(copyout(np->pgdir, (uint)sp, ustack, 8) < 0) {
-  //  return -1;
-  //}
-  //cprintf("inside clone proc sz: %d np size: %d\n", proc->sz, np->sz);
-  pte_t *pte;
-  pte = walk(p->pagetable, (uint64)stack, 0);
-  printf("VA:%p\n",(uint64)stack);
-  printf("PTE:%p\n",pte);
-  printf("PTE deference:%p\n",*pte);
-
-  // increment reference counts on open file descriptors.
-  for(i = 0; i < NOFILE; i++)
-    if(p->ofile[i])
-      np->ofile[i] = filedup(p->ofile[i]);
-  np->cwd = idup(p->cwd);
-  printf("check point g\n");
-
-  safestrcpy(np->name, p->name, sizeof(p->name));
-  printf("check point h\n");
-  pid = np->pid;
-  np->state = RUNNABLE;
-  if(holding(&np->lock))
-    printf("clone hold the thread lock\n");
-  release(&np->lock);
-  release(&sched_lock);
-  printf("check point i\n");
-  return pid;
-}
-
-int
-sys_clone(void)
-{
-  //void (*fcn)(void*,void*);
-  //void* arg1;
-  //void* arg2;
-  //void* stack;
-  uint64 fcn;
-  uint64 arg1;
-  uint64 arg2;
-  uint64 stack;
-
-  if(argaddr(0, &fcn) < 0)
-    return -1;
-  if(argaddr(1, &arg1) < 0)
-    return -1;
-  if(argaddr(2, &arg2) < 0)
-    return -1;
-  if(argaddr(3, &stack) < 0)
-    return -1;
-  
-  return clone((void(*)(void*,void*))fcn, (void*)arg1, (void*)arg2, (void*)stack);
-  printf("check point j\n");
-}
-
-int sys_join(void)
-{
-//  void **stack = NULL;
-//  if(argptr(0, (void*)&stack, sizeof(void**)) < 0)
-//  {
-//    return -1;
-//  }
-//    return join(stack);
-  return 0;
-}
-
-
-
-
 
 
 
@@ -736,67 +568,45 @@ sys_getpinfo(void)
     return getpinfo(p);
 }
 ///////////////////////////////////////////////////// getpinfo //////////////////////////////////////////////////
-//set_rnd_seed(10);
 
-////////////////////////////////////////////////////// p2b /////////////////////////////////////////////////////////
 
+
+//////////////////////////////////////////////////////////////// original scheduler /////////////////////////////////////////////////////////////////////
 /*
 void
 scheduler(void)
 {
   struct proc *p;
   struct cpu *c = mycpu();
+  
   c->proc = 0;
   for(;;){
-    // Avoid deadlock by giving devices a chance to interrupt.
+    // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
 
-    // Run the for loop with interrupts off to avoid
-    // a race between an interrupt and WFI, which would
-    // cause a lost wakeup.
-    //printf("try lrc, cpu:%d\n",id);
-    acquire(&sched_lock); //for access the process table
-    //printf("hold lrc, cpu:%d\n",id);
-    struct proc* runnable[NPROC]; //runnable accounting table
-    int ticket_sum = 0; 
-    int i = 0;
-    struct proc* WP = NULL; //the process that wins the lottery
-    for(p = proc; p < &proc[NPROC]; p++){
+    for(p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
-      if(p->state == RUNNABLE){
-        runnable[i] = p;
-        ticket_sum += p->ticket;
-        i++;
+      if(p->state == RUNNABLE) {
+        // Switch to chosen process.  It is the process's job
+        // to release its lock and then reacquire it
+        // before jumping back to us.
+        p->state = RUNNING;
+        c->proc = p;
+        swtch(&c->scheduler, &p->context);
+
+        // Process is done running for now.
+        // It should have changed its p->state before coming back.
+        c->proc = 0;
       }
       release(&p->lock);
     }
-
-    uint32 win_num = rand_interval(0,ticket_sum); //the lottery winning number between [0, ticket_sum]
-    uint32 counter = 0;
-    for(int j = 0; j < i; j++){
-      counter += runnable[j]->ticket;
-      if(counter >= win_num){
-        WP = runnable[j];
-        break;
-      }
-    }
-    release(&sched_lock); //for access the process table
-    if(WP != NULL){
-      acquire(&WP->lock);
-      WP->state = RUNNING;
-      c->proc = WP;
-      WP->start_tick = ticks; //p2b the starting tick of this scheduling round
-      //release(&sched_lock); //for access the process table
-      swtch(&c->scheduler, &WP->context);
-      c->proc = 0;
-      release(&WP->lock);
-    }
-    //release(&sched_lock); //for access the process table
   }
 }
 */
 //////////////////////////////////////////////////////////////// original scheduler /////////////////////////////////////////////////////////////////////
 
+
+////////////////////////////////////////////////////// p2b /////////////////////////////////////////////////////////
 //int
 void
 scheduler(void)
@@ -828,7 +638,7 @@ scheduler(void)
         runnable[i] = p;
         ticket_sum += p->ticket;
         i++;
-      //settickets(100,p);
+        //settickets(100,p);
         //printf("cpu:%d,p:%p\n",cpuid(),p);
         //printf("cpu:%d,runnable:%p\n",cpuid(),runnable[i]);
         //printf("cpu:%d,STATE:%d\n",cpuid(),p->state);
@@ -873,41 +683,9 @@ scheduler(void)
     //return mycpu()->noff;
     //printf("be here3\n");
     release(&sched_lock);
-  //}*/
-  //////////////////////////////////////////////////////////////////////////////////////////////////////
-  //for(;;){
-    // Avoid deadlock by ensuring that devices can interrupt.
-  /*  
-    intr_on();
-    acquire(&sched_lock);
-    //printf("loop?");
-    for(p = proc; p < &proc[NPROC]; p++){
-      acquire(&p->lock);
-      //printf("cpu:%d,c->proc:%p\n",cpuid(),mycpu()->proc);
-      if(p->state == RUNNABLE){
-        // Switch to chosen process.  It is the process's job
-        // to release its lock and then reacquire it
-        // before jumping back to us.
-        p->state = RUNNING;
-        c->proc = p;
-        p->start_tick = ticks; //p2b the starting tick of this scheduling round
-        //printf("switch out cpu:%d,c->proc:%p,lock:%p, pid:%d, name:%s\n",cpuid(),mycpu()->proc,&p->lock,mycpu()->proc->pid,mycpu()->proc->name);
-        swtch(&c->scheduler, &p->context);
-        //printf("switch in cpu:%d,c->proc:%p,lock:%p, pid:%d, name:%s\n",cpuid(),mycpu()->proc,&p->lock,mycpu()->proc->pid,mycpu()->proc->name);
-        // Process is done running for now.
-        // It should have changed its p->state before coming back.
-        c->proc = 0;
-      }
-      //printf("cpu:%d,lock:%p\n",cpuid(),&p->lock);
-      release(&p->lock);
-      //printf("cpu:%d,lock:%p\n",cpuid(),&p->lock);
-    }
-    return;
-    release(&sched_lock);
-    }
-  */
   }
 }
+////////////////////////////////////////////////////// p2b /////////////////////////////////////////////////////////
 
 // Switch to scheduler.  Must hold only p->lock
 // and have changed proc->state. Saves and restores

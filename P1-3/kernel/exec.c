@@ -20,7 +20,7 @@ exec(char *path, char **argv)
   struct proghdr ph;
   pagetable_t pagetable = 0, oldpagetable;
   struct proc *p = myproc();
-  printf("process name:%s\n", p->name); //p3
+  //printf("process name:%s\n", p->name); //p3
   begin_op();
 
   if((ip = namei(path)) == 0){
@@ -122,7 +122,7 @@ exec(char *path, char **argv)
     if(*s == '/')
       last = s+1;
   safestrcpy(p->name, last, sizeof(p->name));
-  printf("process name:%s\n", p->name); //p3
+  //printf("process name:%s\n", p->name); //p3
   // Commit to the user image.
   oldpagetable = p->pagetable;
   p->pagetable = pagetable;
@@ -139,7 +139,7 @@ exec(char *path, char **argv)
 
  bad:
   if(pagetable){
-    printf("proc_freepagetable wrong here c\n");
+    //printf("proc_freepagetable wrong here c\n");
     proc_freepagetable(pagetable, sz);
   }
   if(ip){
