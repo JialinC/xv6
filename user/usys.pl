@@ -41,3 +41,5 @@ entry("settickets");
 entry("getpinfo");
 entry("mprotect");
 entry("munprotect");
+entry("clone");
+entry("join");

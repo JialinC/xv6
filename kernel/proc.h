@@ -85,7 +85,7 @@ enum procstate { UNUSED, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 // Per-process state
 struct proc {
   //struct spinlock lock;
-
+  struct spinlock lock;
   // p->lock must be held when using these:
   enum procstate state;        // Process state
   struct proc *parent;         // Parent process
@@ -97,6 +97,7 @@ struct proc {
   int ticket;                  // number of tickets this process holds
   uint start_tick;             // number of ticks this process accumulated
   uint total_tick;             // number of ticks accumulated
+  uint64 stack;                // p4 Bottom of kernel stack for the thread craeted by this process
 ////////////////////////////////////////////////// modified ////////////////////////////////////////////////////////////
   // these are private to the process, so p->lock need not be held.
   uint64 kstack;               // Bottom of kernel stack for this process
@@ -107,5 +108,5 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
-  struct spinlock lock;
+  //struct spinlock lock;
 };

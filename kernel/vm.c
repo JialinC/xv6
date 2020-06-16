@@ -74,7 +74,8 @@ kvminithart()
 //   21..39 -- 9 bits of level-1 index.
 //   12..20 -- 9 bits of level-0 index.
 //    0..12 -- 12 bits of byte offset within the page.
-static pte_t *
+//static pte_t *
+pte_t *
 walk(pagetable_t pagetable, uint64 va, int alloc)
 {
   if(va >= MAXVA)
@@ -105,6 +106,8 @@ walkaddr(pagetable_t pagetable, uint64 va)
 
   if(va >= MAXVA)
     return 0;
+  //if(va <= PGSIZE)
+  //  return 0;
 
   pte = walk(pagetable, va, 0);
   if(pte == 0)
@@ -330,7 +333,7 @@ uvmcopy(pagetable_t old, pagetable_t new, uint64 sz)
   uint flags;
   char *mem;
 
-  for(i = PGSIZE; i < sz; i += PGSIZE){//0 or PGSIZE; p3
+  for(i = PGSIZE; i < sz; i += PGSIZE){//0 or PGSIZE; p3, start from PGSIZE since the 0-4095 not mapped
     if((pte = walk(old, i, 0)) == 0)
       panic("uvmcopy: pte should exist");
     if((*pte & PTE_V) == 0){

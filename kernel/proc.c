@@ -70,7 +70,9 @@ myproc(void) {
   push_off();
   struct cpu *c = mycpu();
   struct proc *p = c->proc;
+  //printf("pop_off start in myproc\n");
   pop_off();
+  //printf("pop_off success in myproc\n");
   return p;
 }
 
@@ -124,7 +126,7 @@ found:
 
   // Set up new context to start executing at forkret,
   // which returns to user space.
-  memset(&p->context, 0, sizeof p->context);
+  memset(&p->context, 0, sizeof p->context); //write all zeros
   p->context.ra = (uint64)forkret; //return address
   p->context.sp = p->kstack + PGSIZE;
 
@@ -305,6 +307,176 @@ fork(void)
 
   return pid;
 }
+/////////////////////////////////////// kernel thread /////////////////////////////////////////////////////
+// Look in the process table for an UNUSED proc.
+// If found, initialize state required to run in the kernel,
+// and return with p->lock held.
+// If there are no free procs, return 0.
+static struct proc*
+allocthread(void)
+{
+  struct proc *p;
+  acquire(&sched_lock);
+  for(p = proc; p < &proc[NPROC]; p++) {
+    acquire(&p->lock);
+    if(p->state == UNUSED) {
+      goto found;
+    } else {
+      release(&p->lock);
+    }
+  }
+  release(&sched_lock);
+  return 0;
+
+found:
+  p->pid = allocpid();
+  p->ticket = 1; //p2b
+  p->start_tick = 0; //p2b
+  p->total_tick = 0; //p2b
+
+  // Allocate a trapframe page.
+  if((p->tf = (struct trapframe *)kalloc()) == 0){
+    release(&p->lock);
+    release(&sched_lock);
+    return 0;
+  }
+
+  // An empty user page table.
+  //p->pagetable = proc_pagetable(p);
+
+  // Set up new context to start executing at forkret,
+  // which returns to user space.
+  memset(&p->context, 0, sizeof p->context); //write all zeros
+  p->context.ra = (uint64)forkret; //return address
+  p->context.sp = p->kstack + PGSIZE;
+
+  return p;
+  //return with sched_lock and plock held
+}
+
+// Create a new thread, copying the parent.
+// Sets up thread kernel stack to return as if from the passed in function.
+int
+clone(void(*fcn)(void *, void *), void *arg1, void *arg2, void *stack)
+{
+  int i, pid;
+  struct proc *np;
+  struct proc *p = myproc();
+  printf("check point e\n");
+  printf("stack %p\n",stack);
+  if(((uint64)stack % PGSIZE) != 0) { //check the stack address is page aligned
+    return -1;
+  }
+  
+  // Allocate process.
+  if((np = allocthread()) == 0){ //this gonna hold the lock,do not allocate a pgtb
+  }
+
+  printf("check point f\n");
+  printf("p %p\n",p);
+  printf("np %p\n",np);
+  printf("p pid %p\n",p->pid);
+  printf("np pid %p\n",np->pid);
+
+  np->stack = (uint64)stack; //self added PCB field
+  np->pagetable = p->pagetable; //use the same pagetable
+  np->sz = p->sz;
+  //printf("inside clone proc sz: %d np size: %d\n", proc->sz, np->sz);
+  np->ticket = p->ticket; //p2b added
+  np->parent = p;
+  
+  //np->start_tick = 0;
+  //np->total_tick = 0;
+  // copy saved user registers.
+  *(np->tf) = *(p->tf);
+  uint64 sp;
+  sp = (uint64)stack + PGSIZE; //stack top
+  //set up argument
+  np->tf->a0 = (uint64)arg1;
+  np->tf->a1 = (uint64)arg2;
+  //set stack pointer to stack
+  np->tf->sp = sp;
+  //set instruction pointer to function
+  np->tf->epc = (uint64)fcn;
+  //printf("check point g\n");
+  //set up the stack pointer
+  //uint64 sp, stackbase, ustack[MAXARG+1];
+  //sp = (uint64)stack + PGSIZE; //stack top
+  //stackbase = (uint64)stack;
+  //push argument pointer
+  //ustack[0] = 0xffffffff;
+  //ustack[1] = (uint)arg;
+  //sp -= 8;
+  //if(copyout(np->pgdir, (uint)sp, ustack, 8) < 0) {
+  //  return -1;
+  //}
+  //cprintf("inside clone proc sz: %d np size: %d\n", proc->sz, np->sz);
+  pte_t *pte;
+  pte = walk(p->pagetable, (uint64)stack, 0);
+  printf("VA:%p\n",(uint64)stack);
+  printf("PTE:%p\n",pte);
+  printf("PTE deference:%p\n",*pte);
+
+  // increment reference counts on open file descriptors.
+  for(i = 0; i < NOFILE; i++)
+    if(p->ofile[i])
+      np->ofile[i] = filedup(p->ofile[i]);
+  np->cwd = idup(p->cwd);
+  printf("check point g\n");
+
+  safestrcpy(np->name, p->name, sizeof(p->name));
+  printf("check point h\n");
+  pid = np->pid;
+  np->state = RUNNABLE;
+  if(holding(&np->lock))
+    printf("clone hold the thread lock\n");
+  release(&np->lock);
+  release(&sched_lock);
+  printf("check point i\n");
+  return pid;
+}
+
+int
+sys_clone(void)
+{
+  //void (*fcn)(void*,void*);
+  //void* arg1;
+  //void* arg2;
+  //void* stack;
+  uint64 fcn;
+  uint64 arg1;
+  uint64 arg2;
+  uint64 stack;
+
+  if(argaddr(0, &fcn) < 0)
+    return -1;
+  if(argaddr(1, &arg1) < 0)
+    return -1;
+  if(argaddr(2, &arg2) < 0)
+    return -1;
+  if(argaddr(3, &stack) < 0)
+    return -1;
+  
+  return clone((void(*)(void*,void*))fcn, (void*)arg1, (void*)arg2, (void*)stack);
+  printf("check point j\n");
+}
+
+int sys_join(void)
+{
+//  void **stack = NULL;
+//  if(argptr(0, (void*)&stack, sizeof(void**)) < 0)
+//  {
+//    return -1;
+//  }
+//    return join(stack);
+  return 0;
+}
+
+
+
+
+
+
 
 // Pass p's abandoned children to init.
 // Caller must hold p->lock.

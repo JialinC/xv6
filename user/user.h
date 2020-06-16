@@ -29,6 +29,8 @@ int settickets(int); //p2b edited
 int getpinfo(struct pstat *); //p2b edited
 int mprotect(void*, int); //p3
 int munprotect(void*, int); //p3
+int clone(void(*)(void *, void *), void *, void *, void *); //p4
+int join(void **stack); //p4
 int tester(void); //p2b edited
 
 // ulib.c
@@ -45,3 +47,13 @@ void* memset(void*, int, uint);
 void* malloc(uint);
 void free(void*);
 int atoi(const char*);
+
+//kernel thread library also in ulib.c p4
+int thread_create(void (*)(void *, void *), void *, void *);
+//int thread_create(void (*start_routine)(void*), void *arg); old
+//int thread_join();
+//void lock_init(lock_t *);
+//void lock_acquire(lock_t *);
+//void lock_release(lock_t *);
+//void cv_wait(cond_t *, lock_t *); not required
+//void cv_signal(cond_t *); not required

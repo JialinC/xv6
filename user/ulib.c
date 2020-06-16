@@ -2,6 +2,10 @@
 #include "kernel/stat.h"
 #include "kernel/fcntl.h"
 #include "user/user.h"
+#ifndef PGSIZE
+#define PGSIZE 4096
+#endif
+
 
 char*
 strcpy(char *s, const char *t)
@@ -107,3 +111,64 @@ memmove(void *vdst, const void *vsrc, int n)
     *dst++ = *src++;
   return vdst;
 }
+
+//void lock_init(lock_t *l) {
+// l->locked = 0;
+ //l->guard = 0;
+//}
+
+//void lock_acquire(lock_t *l) {
+//  while(xchg(&l->locked, 1));
+//}
+
+//void lock_release(lock_t *l) {
+//  l->locked = 0;
+//}
+
+//void cv_wait(cond_t *cond, lock_t *lock) {
+//  cond->num++;
+  //while(xchg(&lock->guard, 1));
+//  lock_release(lock);
+//  condsleep(cond->num);
+  //xchg(&lock->guard, 0);
+//  while(xchg(&lock->locked, 1));
+//}
+
+//void cv_signal(cond_t * cond) {
+//  if(cond->num != cond->curr) {
+//    cond->curr++;
+//    condwakeup(cond->curr);
+//  }
+//}
+//int thread_create(void (*start_routine)(void *, void *), void *arg1, void *arg2){
+int
+thread_create(void (*start_routine)(void*, void*), void *arg1, void *arg2)
+{
+  printf("check point a\n");
+  void *stack = malloc(PGSIZE*2); //allocate space on the heap, should be 1 page in size and pagesize aligned
+  printf("check point b\n");
+  if((uint64)stack % PGSIZE) { //not aligned
+    stack = stack + (PGSIZE - (uint64)stack % PGSIZE); //make is pagesize aligned
+    printf("check point c\n");
+  }
+  //stack = stack + PGSIZE;
+  printf("check point d\n");
+  printf("stack %p\n",stack);
+  //stack += (PGSIZE - (uint64)stack % PGSIZE);
+  int pid = clone(start_routine, arg1, arg2, stack);
+  return pid;
+}
+
+//int thread_join() {
+//  void *ustack = NULL;
+//  int status = join(&ustack);
+//  free(ustack);
+//  return status;
+//}
+
+
+
+
+
+
+

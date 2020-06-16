@@ -174,6 +174,7 @@ int             copyin(pagetable_t, char *, uint64, uint64);
 int             copyinstr(pagetable_t, char *, uint64, uint64);
 int 			mprotect(uint64, int); //p3
 int 			munprotect(uint64, int); //p3
+pte_t *         walk(pagetable_t, uint64, int);
 
 // plic.c
 void            plicinit(void);

@@ -64,7 +64,7 @@ usertrap(void)
     // so don't enable until done with those registers.
     intr_on();
 
-    syscall();
+    syscall();  //handle the syscall
   } else if((which_dev = devintr()) != 0){
     // ok
   } else if(0xd ==r_scause()){ //p3 this is null pointer deference

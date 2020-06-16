@@ -64,8 +64,9 @@ release(struct spinlock *lk)
   //   s1 = &lk->locked
   //   amoswap.w zero, zero, (s1)
   __sync_lock_release(&lk->locked);
-
+  //printf("pop_off start in release\n");
   pop_off();
+  //printf("pop_off success in release\n");
 }
 
 // Check whether this cpu is holding the lock.
@@ -75,7 +76,9 @@ holding(struct spinlock *lk)
   int r;
   push_off();
   r = (lk->locked && lk->cpu == mycpu());
+  //printf("pop_off start in holding\n");
   pop_off();
+  //printf("pop_off start in holding\n");
   return r;
 }
 
