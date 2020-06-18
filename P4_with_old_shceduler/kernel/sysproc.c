@@ -23,11 +23,6 @@ sys_getpid(void)
   return myproc()->pid;
 }
 
-uint64
-sys_getreadcount(void)
-{
-  return readcounter; //p1b edited
-}
 
 uint64
 sys_fork(void)

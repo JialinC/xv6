@@ -6,15 +6,13 @@
 
 static char digits[] = "0123456789ABCDEF";
 
-//struct {
-//  struct spinlock lock;
-//} ptf;
+
 // lock to avoid interleaving concurrent printf's.
 static struct {
   lock_t printf_lock;
   int locking;
 } pr;
-//lock_t printf_lock;
+
 
 struct cmd {
   int type;
@@ -121,22 +119,13 @@ void
 printf(const char *fmt, ...)
 {
   va_list ap;
+  lock_acquire(&pr.printf_lock);
 
-  //int locking = pr.locking;
-  //if(locking){
-    lock_acquire(&pr.printf_lock);
-  //  putc(1,'L');
-  //}
-
-  
   va_start(ap, fmt);
-  //putc(1,'U');
   vprintf(1, fmt, ap);
   
-  //if(locking){
-  //  putc(1,'L');
-    lock_release(&pr.printf_lock);
-  //}
+  lock_release(&pr.printf_lock);
+
 }
 
 void

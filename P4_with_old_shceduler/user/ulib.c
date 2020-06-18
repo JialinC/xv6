@@ -145,22 +145,13 @@ void lock_release(lock_t *l) {
 //    condwakeup(cond->curr);
 //  }
 //}
-//int thread_create(void (*start_routine)(void *, void *), void *arg1, void *arg2){
 int
 thread_create(void (*start_routine)(void*, void*), void *arg1, void *arg2)
 {
-  //printf("check point a\n");
   void *stack = malloc(PGSIZE*2); //allocate space on the heap, should be 1 page in size and pagesize aligned
-  //printf("check point b\n");
   if((uint64)stack % PGSIZE) { //not aligned
     stack = stack + (PGSIZE - (uint64)stack % PGSIZE); //make is pagesize aligned
-    //printf("check point c\n");
   }
-  //stack = stack + PGSIZE;
-  //printf("check point d\n");
-  //printf("stack %p\n",stack);
-  //printf("start_routine: %p\n",start_routine );
-  //stack += (PGSIZE - (uint64)stack % PGSIZE);
   int pid = clone(start_routine, arg1, arg2, stack);
   return pid;
 }

@@ -15,8 +15,3 @@ typedef struct __lock_t { //p4
 //  uint guard;
 } lock_t;
 
-//typedef struct __cond_t{
-//  uint num;
-//  uint curr;
-//  lock_t lock;
-//} cond_t;

@@ -24,14 +24,8 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
-int getreadcount(void); //p1b edited
-int settickets(int); //p2b edited
-int getpinfo(struct pstat *); //p2b edited
-int mprotect(void*, int); //p3
-int munprotect(void*, int); //p3
 int clone(void(*)(void *, void *), void *, void *, void *); //p4
 int join(void **stack); //p4
-int tester(void); //p2b edited
 
 // ulib.c
 int stat(const char*, struct stat*);

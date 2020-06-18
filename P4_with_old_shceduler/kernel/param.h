@@ -14,5 +14,5 @@
 #define MAX_UINT32   0xFFFFFFFF //maximum unsigned 32 bits int
 
 #ifndef NULL	      
-#define NULL	     0 //p2b J edited
+#define NULL	     0 
 #endif

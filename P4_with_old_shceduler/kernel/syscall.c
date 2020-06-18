@@ -106,15 +106,8 @@ extern uint64 sys_unlink(void);
 extern uint64 sys_wait(void);
 extern uint64 sys_write(void);
 extern uint64 sys_uptime(void);
-extern uint64 sys_getreadcount(void); //p1b edited
-extern uint64 sys_settickets(void);//p2b
-extern uint64 sys_getpinfo(void); //p2b
-extern uint64 sys_mprotect(void); //p3
-extern uint64 sys_munprotect(void); //p3
 extern uint64 sys_clone(void); //p4
 extern uint64 sys_join(void); //p4
-//extern uint64 sys_tester(void); //general purpose tester
-
 
 
 static uint64 (*syscalls[])(void) = {
@@ -139,14 +132,8 @@ static uint64 (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
-[SYS_getreadcount]   sys_getreadcount, //p1b edited
-[SYS_settickets]   sys_settickets, //p2b edited
-[SYS_getpinfo]   sys_getpinfo, //p2b edited
-[SYS_mprotect]   sys_mprotect, //p3 edited
-[SYS_munprotect]   sys_munprotect, //p3 edited
 [SYS_clone]   sys_clone, //p4
 [SYS_join]    sys_join, //p4
-//[SYS_tester]	sys_tester, //general purpose tester
 };
 
 void

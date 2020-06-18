@@ -8,7 +8,6 @@ struct spinlock;
 struct sleeplock;
 struct stat;
 struct superblock;
-struct pstat; //p2b
 
 // bio.c
 void            binit(void);
@@ -104,8 +103,6 @@ void            yield(void);
 int             either_copyout(int user_dst, uint64 dst, void *src, uint64 len);
 int             either_copyin(void *dst, int user_src, uint64 src, uint64 len);
 void            procdump(void);
-int 			settickets(int,struct proc*);
-int				getpinfo(uint64 addr);
 
 // swtch.S
 void            swtch(struct context*, struct context*);
@@ -172,9 +169,6 @@ uint64          walkaddr(pagetable_t, uint64);
 int             copyout(pagetable_t, uint64, char *, uint64);
 int             copyin(pagetable_t, char *, uint64, uint64);
 int             copyinstr(pagetable_t, char *, uint64, uint64);
-int 			mprotect(uint64, int); //p3
-int 			munprotect(uint64, int); //p3
-pte_t *         walk(pagetable_t, uint64, int);
 
 // plic.c
 void            plicinit(void);
@@ -187,16 +181,6 @@ void            plic_complete(int);
 void            virtio_disk_init(void);
 void            virtio_disk_rw(struct buf *, int);
 void            virtio_disk_intr();
-
-//main.c
-extern volatile int readcounter; //p1b
-extern struct 	spinlock l_r_c; //p1b
-extern struct   spinlock sched_lock; //p2
-//rand.c
-extern uint32 	rnd_seed; //p2b
-void		set_rnd_seed(uint32); //p2b
-uint32 		rand_int(uint32*); //p2b
-uint32 		rand_interval(uint32, uint32); //p2b
 
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))

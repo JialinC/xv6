@@ -20,7 +20,7 @@ exec(char *path, char **argv)
   struct proghdr ph;
   pagetable_t pagetable = 0, oldpagetable;
   struct proc *p = myproc();
-  //printf("process name:%s\n", p->name); //p3
+
   begin_op();
 
   if((ip = namei(path)) == 0){
@@ -30,57 +30,39 @@ exec(char *path, char **argv)
   ilock(ip);
 
   // Check ELF header
-  if(readi(ip, 0, (uint64)&elf, 0, sizeof(elf)) != sizeof(elf)) //readi(struct inode *ip, int user_dst, uint64 dst, uint off, uint n)
+  if(readi(ip, 0, (uint64)&elf, 0, sizeof(elf)) != sizeof(elf))
     goto bad;
   if(elf.magic != ELF_MAGIC)
     goto bad;
 
-  if((pagetable = proc_pagetable(p)) == 0) //create a new empty pagetable only trapline and frame in it 
+  if((pagetable = proc_pagetable(p)) == 0)
     goto bad;
 
   // Load program into memory.
-  sz = PGSIZE;//0; //PAGSIZE p3
-  //printf("sz after pre-allocate:%p\n", sz); //p3
-  //printf("elf.phnum:%p\n", elf.phnum);
-  //printf("elf.phoff:%p\n", elf.phoff);
+  sz = 0;
   for(i=0, off=elf.phoff; i<elf.phnum; i++, off+=sizeof(ph)){
-    //printf("sz:%p\n", sz);
-    if(readi(ip, 0, (uint64)&ph, off, sizeof(ph)) != sizeof(ph)) //readi(struct inode *ip, int user_dst, uint64 dst, uint off, uint n)
+    if(readi(ip, 0, (uint64)&ph, off, sizeof(ph)) != sizeof(ph))
       goto bad;
-    //printf("vaddr:%p\n", ph.vaddr);
-    //printf("memsz:%p\n", ph.memsz);
-    //printf("vaddr + memsz:%p\n", ph.vaddr + ph.memsz);
     if(ph.type != ELF_PROG_LOAD)
       continue;
     if(ph.memsz < ph.filesz)
       goto bad;
     if(ph.vaddr + ph.memsz < ph.vaddr)
       goto bad;
-    if((sz = uvmalloc(pagetable, sz, ph.vaddr + ph.memsz)) == 0){// Allocate PTEs and physical memory to grow process from oldsz to newsz, which need not be page aligned.  Returns new size or 0 on error.
-      //printf("uvmalloc failed:%p\n", sz);
+    if((sz = uvmalloc(pagetable, sz, ph.vaddr + ph.memsz)) == 0)
       goto bad;
-    }
     if(ph.vaddr % PGSIZE != 0)
       goto bad;
-    if(loadseg(pagetable, ph.vaddr, ip, ph.off, ph.filesz) < 0){ //loadseg(pagetable, va, inode, offset, sz)
-      //printf("loadseg failed:%p\n", sz);
+    if(loadseg(pagetable, ph.vaddr, ip, ph.off, ph.filesz) < 0)
       goto bad;
-    }
-    //printf("sz after uvmalloc:%p\n", sz);
-    //printf("vaddr after uvmalloc:%p\n", ph.vaddr);
-    //printf("memsz after uvmalloc:%p\n", ph.memsz);
-    //printf("vaddr + memsz after uvmalloc:%p\n", ph.vaddr + ph.memsz);
   }
-  //printf("check point a\n");
   iunlockput(ip);
-  //printf("check point b\n");
   end_op();
-  //printf("check point c\n");
   ip = 0;
 
   p = myproc();
   uint64 oldsz = p->sz;
-  //printf("oldsz:%p\n",oldsz);
+
   // Allocate two pages at the next page boundary.
   // Use the second as the user stack.
   sz = PGROUNDUP(sz);
@@ -122,26 +104,19 @@ exec(char *path, char **argv)
     if(*s == '/')
       last = s+1;
   safestrcpy(p->name, last, sizeof(p->name));
-  //printf("process name:%s\n", p->name); //p3
+    
   // Commit to the user image.
   oldpagetable = p->pagetable;
   p->pagetable = pagetable;
   p->sz = sz;
   p->tf->epc = elf.entry;  // initial program counter = main
   p->tf->sp = sp; // initial stack pointer
-  //printf("check point d\n");
-  //printf("proc_freepagetable wrong here b\n");
-  //printf("oldpagetable %p\n",oldpagetable);
-  //printf("oldsz %p\n",oldsz);  
-  proc_freepagetable(oldpagetable, oldsz - PGSIZE,p); //p3 p4 add the p argument
-  //printf("check point e\n");
+  proc_freepagetable(oldpagetable, oldsz, p);
   return argc; // this ends up in a0, the first argument to main(argc, argv)
 
  bad:
-  if(pagetable){
-    //printf("proc_freepagetable wrong here c\n");
-    proc_freepagetable(pagetable, sz, p); //p4 add the p argument
-  }
+  if(pagetable)
+    proc_freepagetable(pagetable, sz, p);
   if(ip){
     iunlockput(ip);
     end_op();
@@ -163,20 +138,16 @@ loadseg(pagetable_t pagetable, uint64 va, struct inode *ip, uint offset, uint sz
     panic("loadseg: va must be page aligned");
 
   for(i = 0; i < sz; i += PGSIZE){
-    //printf("va: %p\n",va);
     pa = walkaddr(pagetable, va + i);
-    //printf("pa: %p\n",pa);
     if(pa == 0)
       panic("loadseg: address should exist");
-    if(sz - i < PGSIZE) //last page, cannot fill a full page
+    if(sz - i < PGSIZE)
       n = sz - i;
     else
-      n = PGSIZE; //full page
-    if(readi(ip, 0, (uint64)pa, offset+i, n) != n) //readi(struct inode *ip, int user_dst, uint64 dst, uint off, uint n)
-      return -1;                                   //read data from inode to physical addresss
+      n = PGSIZE;
+    if(readi(ip, 0, (uint64)pa, offset+i, n) != n)
+      return -1;
   }
   
   return 0;
 }
-//uint64 *pagetable_t
-//

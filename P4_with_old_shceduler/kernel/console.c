@@ -57,10 +57,6 @@ struct {
   uint e;  // Edit index
 } cons;
 
-//struct {
-  //struct spinlock lock;
-//} userw;
-
 
 //
 // user write()s to the console go here.
@@ -194,7 +190,6 @@ void
 consoleinit(void)
 {
   initlock(&cons.lock, "cons");
-  //initlock(&userw.lock,"userw");
   uartinit();
 
   // connect read and write system calls

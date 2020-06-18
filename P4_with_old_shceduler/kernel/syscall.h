@@ -20,11 +20,5 @@
 #define SYS_link   19
 #define SYS_mkdir  20
 #define SYS_close  21
-#define SYS_getreadcount 22 //p1b
-#define SYS_settickets 23 //p2b
-#define SYS_getpinfo 24 //p2b
-#define SYS_mprotect 25 //p3
-#define SYS_munprotect 26 //p3
-#define SYS_clone 27 //p4
-#define SYS_join 28 //p4
-#define SYS_tester 29 //general purpose tester
+#define SYS_clone 22 //p4
+#define SYS_join 23 //p4

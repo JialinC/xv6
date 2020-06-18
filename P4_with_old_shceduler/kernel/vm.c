@@ -161,9 +161,7 @@ mappages(pagetable_t pagetable, uint64 va, uint64 size, uint64 pa, int perm)
   pte_t *pte;
   
   a = PGROUNDDOWN(va);
-  //printf("before round down %p\n",va + size - 1);
   last = PGROUNDDOWN(va + size - 1);
-  //printf("after round down %p\n",last);
   for(;;){
     if((pte = walk(pagetable, a, 1)) == 0)
       return -1;
@@ -190,13 +188,10 @@ uvmunmap(pagetable_t pagetable, uint64 va, uint64 size, int do_free)
 
   a = PGROUNDDOWN(va);
   last = PGROUNDDOWN(va + size - 1);
-  //printf("a:%p\n", a);
-  //printf("last:%p\n", last);
   for(;;){
     if((pte = walk(pagetable, a, 0)) == 0)
       panic("uvmunmap: walk");
     if((*pte & PTE_V) == 0){
-      //printf("va=%p pte=%p\n", a, *pte);
       panic("uvmunmap: not mapped");
     }
     if(PTE_FLAGS(*pte) == PTE_V)
@@ -315,8 +310,7 @@ freewalk(pagetable_t pagetable)
 void
 uvmfree(pagetable_t pagetable, uint64 sz)
 {
-  //printf("uvmunmap wrong here b\n");
-  uvmunmap(pagetable, PGSIZE, sz, 1);//uvmunmap(pagetable, 0, sz, 1);
+  uvmunmap(pagetable, 0, sz, 1);
   freewalk(pagetable);
 }
 
@@ -334,11 +328,10 @@ uvmcopy(pagetable_t old, pagetable_t new, uint64 sz)
   uint flags;
   char *mem;
 
-  for(i = PGSIZE; i < sz; i += PGSIZE){//0 or PGSIZE; p3, start from PGSIZE since the 0-4095 not mapped
+  for(i = 0; i < sz; i += PGSIZE){
     if((pte = walk(old, i, 0)) == 0)
       panic("uvmcopy: pte should exist");
     if((*pte & PTE_V) == 0){
-      //printf("*pte:%p\n", *pte); //p3
       panic("uvmcopy: page not present");
     }
     pa = PTE2PA(*pte);
@@ -354,7 +347,6 @@ uvmcopy(pagetable_t old, pagetable_t new, uint64 sz)
   return 0;
 
  err:
-  printf("uvmunmap wrong here c\n");
   uvmunmap(new, 0, i, 1);
   return -1;
 }
@@ -463,149 +455,4 @@ copyinstr(pagetable_t pagetable, char *dst, uint64 srcva, uint64 max)
   } else {
     return -1;
   }
-}
-
-
-int
-mprotect(uint64 va, int len)
-{
-  if(len<=0){
-    printf("len should not less than or equal to 0!\n");
-    return -1;
-  }
-
-  if(POX(va)!=0){
-    printf("address is not page-aligned!\n");
-    return -1;
-  }
-
-  if(va >= MAXVA){
-    printf("va >= MAXVA!\n");
-    return -1;
-  }
-  
-  pte_t *pte;
-  pte_t old;
-  pagetable_t pagetable = 0;
-  struct proc *p = myproc();
-  pagetable = p->pagetable;
-  for(int i =0; i<len; i++){
-    pte = walk(pagetable, va+i*PGSIZE, 0);
-    //printf("VA:%p\n",va+i*PGSIZE);
-    //printf("PTE:%p\n",pte);
-    //printf("PTE deference:%p\n",*pte);
-    if(pte == 0 || (*pte & PTE_V) == 0 || (*pte & PTE_U) == 0){ 
-      printf("not currently a part of the address space!\n");
-      return -1;
-    }
-  }
-
-  for(int i =0; i<len; i++){
-    pte = walk(pagetable, va+i*PGSIZE, 0);
-    old = *pte;
-    *pte = old & (~PTE_W);
-  }
-  //printf("PTE:%p\n",pte);
-  //printf("PTE deference:%p\n",*pte);
-  //old = *pte;// = PA2PTE(pa) | perm | PTE_V;
-  //*pte = old & (~PTE_W);
-  //printf("PTE:%p\n",pte);
-  //printf("PTE deference:%p\n",*pte);
-  //if(mappages(kernel_pagetable, va, sz, pa, perm) != 0)
-  //  panic("kvmmap");
-  sfence_vma();
-  return 0;
-}
-
-int
-munprotect(uint64 va, int len)
-{
-  if(len<=0){
-    printf("len should not less than or equal to 0!\n");
-    return -1;
-  }
-
-  if(POX(va)!=0){
-    printf("address is not page-aligned!\n");
-    return -1;
-  }
-
-  if(va >= MAXVA){
-    printf("va >= MAXVA!\n");
-    return -1;
-  }
-  
-  pte_t *pte;
-  pte_t old;
-  pagetable_t pagetable = 0;
-  struct proc *p = myproc();
-  pagetable = p->pagetable;
-  for(int i =0; i<len; i++){
-    pte = walk(pagetable, va+i*PGSIZE, 0);
-    //printf("VA:%p\n",va+i*PGSIZE);
-    //printf("PTE:%p\n",pte);
-    //printf("PTE deference:%p\n",*pte);
-    if(pte == 0 || (*pte & PTE_V) == 0 || (*pte & PTE_U) == 0){ 
-      printf("not currently a part of the address space!\n");
-      return -1;
-    }
-  }
-
-  for(int i =0; i<len; i++){
-    pte = walk(pagetable, va+i*PGSIZE, 0);
-    old = *pte;
-    *pte = old | PTE_W;
-  }
-  sfence_vma();
-  return 0;
-}
-
-//PTE_V (1L << 0) // valid
-//PTE_R (1L << 1)
-//PTE_W (1L << 2)
-//PTE_X (1L << 3)
-//PTE_U (1L << 4) // 1 -> user can access
-/*
-static pte_t *
-walk(pagetable_t pagetable, uint64 va, int alloc)
-{
-  if(va >= MAXVA)
-    panic("walk");
-
-  for(int level = 2; level > 0; level--) {
-    pte_t *pte = &pagetable[PX(level, va)];
-    if(*pte & PTE_V) {
-      pagetable = (pagetable_t)PTE2PA(*pte);
-    } else {
-      if(!alloc || (pagetable = (pde_t*)kalloc()) == 0)
-        return 0;
-      memset(pagetable, 0, PGSIZE);
-      *pte = PA2PTE(pagetable) | PTE_V;
-    }
-  }
-  return &pagetable[PX(0, va)];
-}
-*/
-
-
-
-
-uint64
-sys_mprotect(void) //p3
-{ 
-   int n;
-   uint64 p;
-   if(argaddr(0, &p) < 0 || argint(1, &n) < 0)
-    return -1;
-   return mprotect(p, n);
-}
-
-uint64
-sys_munprotect(void) //p3
-{ 
-   int n;
-   uint64 p;
-   if(argaddr(0, &p) < 0 || argint(1, &n) < 0)
-    return -1;
-   return munprotect(p, n);
 }

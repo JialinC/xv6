@@ -94,9 +94,6 @@ struct proc {
   int xstate;                  // Exit status to be returned to parent's wait
   int pid;                     // Process ID
 ////////////////////////////////////////////////// modified ////////////////////////////////////////////////////////////
-  int ticket;                  // number of tickets this process holds
-  uint start_tick;             // number of ticks this process accumulated
-  uint total_tick;             // number of ticks accumulated
   uint64 stack;                // p4 Bottom of kernel stack for the thread craeted by this process
 ////////////////////////////////////////////////// modified ////////////////////////////////////////////////////////////
   // these are private to the process, so p->lock need not be held.
@@ -108,5 +105,4 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
-  //struct spinlock lock;
 };
