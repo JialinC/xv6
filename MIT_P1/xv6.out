@@ -1,0 +1,16 @@
+qemu-system-riscv64: warning: No -bios option specified. Not loading a firmware.
+qemu-system-riscv64: warning: This default will change in a future QEMU release. Please use the -bios option to avoid breakages when this happens.
+qemu-system-riscv64: warning: See QEMU's deprecation documentation for details.
+
+xv6 kernel is booting
+
+virtio disk init 0
+hart 1 starting
+hart 2 starting
+init: starting sh
+$ sh < xargstest.sh
+$ echo DONE
+$ $ $ $ $ hello
+hello
+hello
+$ $ DONE
