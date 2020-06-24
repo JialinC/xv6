@@ -72,10 +72,6 @@ sys_read(void)
   struct file *f;
   int n;
   uint64 p;
-  acquire(&l_r_c); //J
-  readcounter++; //p1b edited
-  // printf("count: %d\n", readcounter);
-  release(&l_r_c); //J
   if(argfd(0, 0, &f) < 0 || argint(2, &n) < 0 || argaddr(1, &p) < 0)
     return -1;
   return fileread(f, p, n);
