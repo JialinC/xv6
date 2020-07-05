@@ -79,22 +79,22 @@ It's simplest to directly write 32-bit ints to the pipes, rather than using form
 You should create the processes in the pipeline as they are needed. <br />
 Your solution is correct if it produces the following output: <br />
 
-    $ make qemu <br />
+    $ make qemu 
     ... <br />
-    init: starting sh <br />
-    $ primes <br />
-    prime 2 <br />
-    prime 3 <br />
-    prime 5 <br />
-    prime 7 <br />
-    prime 11 <br />
-    prime 13 <br />
-    prime 17 <br />
-    prime 19 <br />
-    prime 23 <br />
-    prime 29 <br />
-    prime 31 <br />
-    $ <br />
+    init: starting sh
+    $ primes 
+    prime 2 
+    prime 3 
+    prime 5 
+    prime 7 
+    prime 11 
+    prime 13 
+    prime 17 
+    prime 19 
+    prime 23 
+    prime 29 
+    prime 31 
+    $ 
   
 # find
 Write a simple version of the UNIX find program: find all the files in a directory tree whose name matches a string. Your solution should be in the file user/find.c.
@@ -110,24 +110,24 @@ Optional: support regular expressions in name matching. grep.c has some primitiv
 
 Your solution is correct if produces the following output (when the file system contains a file a/b): <br />
 
-    $ make qemu <br />
-    ... <br />
-    init: starting sh <br />
-    $ mkdir a <br />
-    $ echo > a/b <br />
-    $ find . b <br />
-    ./a/b <br />
-    $  <br />
+    $ make qemu 
+    ... 
+    init: starting sh 
+    $ mkdir a 
+    $ echo > a/b 
+    $ find . b 
+    ./a/b 
+    $  
   
 # xargs
-Write a simple version of the UNIX xargs program: read lines from standard input and run a command for each line, supplying the line as arguments to the command. Your solution should be in the file user/xargs.c. <br />
+Write a simple version of the UNIX xargs program: read lines from standard input and run a command for each line, supplying the line as arguments to the command. Your solution should be in the file user/xargs.c. 
 
-The following example illustrates xarg's behavior: <br />
-    $ xargs echo bye <br />
-    hello too <br />
-    bye hello too <br />
-    ctrl-d <br />
-    $ <br />
+The following example illustrates xarg's behavior: 
+    $ xargs echo bye 
+    hello too
+    bye hello too 
+    ctrl-d 
+    $ 
   
 Note that the command here is "echo bye" and the additional arguments are "hello too", making the command "echo bye hello too", which outputs "bye hello too".
 # Some hints:
@@ -143,14 +143,14 @@ xargs, find, and grep combine well: <br />
 will run "grep hello" on each file named b in the directories below ".". <br />
 To test your solution for xargs, run the shell script xargstest.sh. Your solution is correct if it produces the following output: <br />
 
-  $ make qemu <br />
-  ... <br />
-  init: starting sh <br />
-  $ sh < xargstest.sh <br />
-  $ $ $ $ $ $ hello <br />
-  hello <br />
-  hello <br />
-  $ $ <br />   
+  $ make qemu 
+  ... 
+  init: starting sh 
+  $ sh < xargstest.sh 
+  $ $ $ $ $ $ hello 
+  hello 
+  hello 
+  $ $  
   
 You may have to fix bugs in your find program. The output has many $ because the xv6 shell is primitive and doesn't realize it is processing commands from a file instead of from the console, and prints a $ for each command in the file. <br />
 ![Test Image 1](result.png)
