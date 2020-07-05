@@ -23,7 +23,7 @@ page table 0x0000000087f6e000 <br />
   
 The first line prints the address of the argument of vmprint. Each PTE line shows the PTE index in its page directory, the pte, the physical address for the PTE. The output should also indicate the level of the page directory: the top-level entries are preceeded by "..", the next level down with another "..", and so on. You should not print entries that are not mapped. In the above example, the top-level page directory has mappings for entry 0 and 255. The next level down for entry 0 has only index 0 mapped, and the bottom-level for that index 0 has entries 0, 1, and 2 mapped. 
 
-#Some hints:
+# Some hints:
 Use the macros at the end of the file kernel/riscv.h.
 The function freewalk may be inspirational.
 Define the prototype for vmprint in kernel/defs.h so that you can call it from exec.c.
@@ -33,13 +33,14 @@ Try to guess what the result of this modification will be: what will break?
 
 Make this modification, boot xv6, and type echo hi to the shell. You should see something like this:
 
-init: starting sh
+init: starting sh <br />
 $ echo hiusertrap(): unexpected scause 0x000000000000000f pid=3 <br />
             sepc=0x0000000000001258 stval=0x0000000000004008 <br />
 va=0x0000000000004000 pte=0x0000000000000000 <br />
-panic: uvmunmap: not mapped
+panic: uvmunmap: not mapped <br />
 The "usertrap(): ..." message is from the user trap handler in trap.c; it has caught an exception that it does not know how to handle. Make sure you understand why this page fault occurs. The "stval=0x0..04008" indicates that the virtual address that caused the page fault is 0x4008.
-Lazy allocation
+
+# Lazy allocation
 Modify the code in trap.c to respond to a page fault from user space by mapping a newly-allocated page of physical memory at the faulting address, and then returning back to user space to let the process continue executing. You should add your code just before the printf call that produced the "usertrap(): ..." message. Your solution is acceptable if it passes usertests.
 A good way to start this lab is by fixing usertrap() in trap.c so that you can run "echo hi" in the shell again. Once that works, you will find some additional problems that have to be solved to make usertests to work correctly. Here are some hints to get going.
 
