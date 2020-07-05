@@ -1,21 +1,21 @@
 # Lab: Simple xv6 shell
 This lab will shed light on how UNIX shells use basic system calls.
 
-Your job is to write a simple shell for xv6. It should be able to run commands with arguments, handle input and output redirection, and set up two-element pipelines. Your shell should act like the xv6 shell sh for these examples as well as similar commands:
+Your job is to write a simple shell for xv6. It should be able to run commands with arguments, handle input and output redirection, and set up two-element pipelines. Your shell should act like the xv6 shell sh for these examples as well as similar commands: <br />
 
-echo hello there
-echo something > file.txt
-ls | grep READ
-grep lion < data.txt | wc > count
-echo echo hello | nsh
-find . b | xargs grep hello
-You should put your shell source in user/nsh.c, and modify the Makefile to compile it. We'll test your user/nsh.c with our copies of other xv6 files; so while you can modify other files, your shell should not depend on those modifications. Your shell should use @ (at sign) as a prompt rather than $, to avoid confusion with the real shell. An xv6 session with your shell might look like this:
+echo hello there <br />
+echo something > file.txt <br />
+ls | grep READ <br />
+grep lion < data.txt | wc > count <br />
+echo echo hello | nsh <br />
+find . b | xargs grep hello <br />
+You should put your shell source in user/nsh.c, and modify the Makefile to compile it. We'll test your user/nsh.c with our copies of other xv6 files; so while you can modify other files, your shell should not depend on those modifications. Your shell should use @ (at sign) as a prompt rather than $, to avoid confusion with the real shell. An xv6 session with your shell might look like this: <br />
 
-xv6 kernel is booting
-$ nsh
-@ grep Ken < README
-xv6 is a re-implementation of Dennis Ritchie's and Ken Thompson's Unix
-@ 
+xv6 kernel is booting <br />
+$ nsh <br />
+@ grep Ken < README <br />
+xv6 is a re-implementation of Dennis Ritchie's and Ken Thompson's Unix <br />
+@  <br />
 Please do not use a memory allocator such as malloc(). Instead you should use only local (stack-allocated) variables and global variables. It's OK to impose reasonable fixed limits on things like the maximum length of a command name, the maximum number of arguments, or the maximum length of any single argument.
 
 We supply you with an xv6 test program testsh, source in user/testsh.c. You're done with the lab if your shell passes all the tests, like this: <br />
