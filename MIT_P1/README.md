@@ -35,12 +35,12 @@ Add the program to UPROGS in Makefile and compile user programs by typing make f
 Look at Kernighan and Ritchie's book The C programming language (second edition) (K&R) to learn about C. <br />
 Run the program from the xv6 shell: <br />
 
-      $ make qemu <br />
-      ... <br />
-      init: starting sh <br />
-      $ sleep 10 <br />
-      (nothing happens for a little while) <br />
-      $ <br />
+      $ make qemu 
+      ... 
+      init: starting sh 
+      $ sleep 10
+      (nothing happens for a little while) 
+      $
     
 Your solution is correct, if your program behaves as shown above. <br />
 
@@ -51,18 +51,18 @@ Write a program that uses UNIX system calls to ``ping-pong'' a byte between two 
 
 # Some hints:
 
-Use pipe to create a pipe. <br />
-Use fork to create a child. <br />
-Use read to read from the pipe, and write to write to the pipe. <br />
-Run the program from the xv6 shell and it should produce the following output: <br />
+Use pipe to create a pipe. 
+Use fork to create a child.
+Use read to read from the pipe, and write to write to the pipe.
+Run the program from the xv6 shell and it should produce the following output:
 
-    $ make qemu <br />
-    ... <br />
-    init: starting sh <br />
-    $ pingpong <br />
-    4: received ping <br />
-    3: received pong <br />
-    $ <br />
+    $ make qemu 
+    ... 
+    init: starting sh
+    $ pingpong
+    4: received ping 
+    3: received pong
+    $ 
   
 Your solution is correct, if your program behaves as shown above. The number before ":" is the process id of the process printing the output. You can get the process id by calling the system call getpid.
 
