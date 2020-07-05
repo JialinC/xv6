@@ -12,9 +12,9 @@ COW fork() makes freeing of the physical pages that implement user memory a litt
 
 The cowtest program
 To help you test your implementation, we've provided an xv6 program called cowtest (source in user/cowtest.c). cowtest runs various tests, but even the first will fail on unmodified xv6. Thus, initially, you will see:
-$ cowtest
-simple: fork() failed
-$ 
+$ cowtest 
+simple: fork() failed 
+$  
 The "simple" test allocates more than half of available physical memory, and then fork()s. The fork fails because there is not enough free physical memory to give the child a complete copy of the parent.
 When you are done, your kernel should be able to run both cowtest and usertests. That is:
 
