@@ -41,3 +41,4 @@ You will need a RISC-V "newlib" tool chain from
 https://github.com/riscv/riscv-gnu-toolchain, and qemu compiled for
 riscv64-softmmu. Once they are installed, and in your shell
 search path, you can run "make qemu".
+![alt text](https://github.com/JialinC/xv6/edit/master/MIT_P5/result.png?raw=true)
