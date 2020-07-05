@@ -11,28 +11,28 @@ COW fork() creates just a pagetable for the child, with PTEs for user memory poi
 COW fork() makes freeing of the physical pages that implement user memory a little trickier. A given physical page may be referred to by multiple processes' page tables, and should be freed only when the last reference disappears.
 
 The cowtest program
-To help you test your implementation, we've provided an xv6 program called cowtest (source in user/cowtest.c). cowtest runs various tests, but even the first will fail on unmodified xv6. Thus, initially, you will see:
+To help you test your implementation, we've provided an xv6 program called cowtest (source in user/cowtest.c). cowtest runs various tests, but even the first will fail on unmodified xv6. Thus, initially, you will see: <br />
 $ cowtest<br />
-simple: fork() failed 
-$  
+simple: fork() failed  <br />
+$ <br />  
 The "simple" test allocates more than half of available physical memory, and then fork()s. The fork fails because there is not enough free physical memory to give the child a complete copy of the parent.
-When you are done, your kernel should be able to run both cowtest and usertests. That is:
+When you are done, your kernel should be able to run both cowtest and usertests. That is: <br />
 
-$ cowtest
-simple: ok
-simple: ok
-three: zombie!
-ok
-three: zombie!
-ok
-three: zombie!
-ok
-file: ok
-ALL COW TESTS PASSED
-$ usertests
-...
-ALL TESTS PASSED
-$
+$ cowtest <br />
+simple: ok <br />
+simple: ok <br />
+three: zombie! <br />
+ok <br />
+three: zombie! <br />
+ok <br />
+three: zombie! <br />
+ok <br />
+file: ok <br />
+ALL COW TESTS PASSED <br />
+$ usertests <br />
+... <br />
+ALL TESTS PASSED <br />
+$ <br />
 
 # Hints
 The lazy page allocation lab has likely made you familiar with much of the xv6 kernel code that's relevant for copy-on-write. However, you should not base this lab on your lazy allocation solution; instead, please start with a fresh copy of xv6 as directed above.
