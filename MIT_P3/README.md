@@ -12,7 +12,7 @@ xv6 has only a page allocator and cannot dynamically allocate objects smaller th
 # The solution
 The solution is to adopt the buddy allocator from the allocator lecture, which we have added to xv6 in kernel/buddy.c and kernel/list.c. <br />
 
-Your job <br />
+# Your job 
 Your job is to further improve xv6's memory allocation in two ways: <br />
 
 Modify kernel/file.c to use the buddy allocator so that the number of file structures is limited by memory rather than NFILE.
@@ -40,5 +40,5 @@ You'll want to remove line 19 in kernel/file.c, which declares file[NFILE]. Inst
 fileclose still needs to acquire ftable.lock because the lock protects f->ref.
 bd_malloc doesn't clear the memory it returns; instead, allocated memory starts out with whatever content it had from its last use. Callers should not assume that it starts out containing zeroes.
 You can use bd_print to print the state of the allocator.
-Compared to the lecture notes, we have modified bd_init so that it is called with the range of physical memory available for allocation. bd_init allocates memory for the buddy data structures from that memory. It initializes its data structures accordingly: bd_init marks memory that is used for buddy data structures as allocated so that it won't be re-allocated. Furthermore, we have modified bd_init to handle an amount of memory that isn't a power of 2 by marking unavailable memory as allocated. Finally, we modified the buddy allocator to serialize concurrent calls to it using a lock.
+Compared to the lecture notes, we have modified bd_init so that it is called with the range of physical memory available for allocation. bd_init allocates memory for the buddy data structures from that memory. It initializes its data structures accordingly: bd_init marks memory that is used for buddy data structures as allocated so that it won't be re-allocated. Furthermore, we have modified bd_init to handle an amount of memory that isn't a power of 2 by marking unavailable memory as allocated. Finally, we modified the buddy allocator to serialize concurrent calls to it using a lock. <br />
 ![Test Image 1](result.png)
