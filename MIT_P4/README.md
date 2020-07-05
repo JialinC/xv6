@@ -24,14 +24,14 @@ page table 0x0000000087f6e000 <br />
 The first line prints the address of the argument of vmprint. Each PTE line shows the PTE index in its page directory, the pte, the physical address for the PTE. The output should also indicate the level of the page directory: the top-level entries are preceeded by "..", the next level down with another "..", and so on. You should not print entries that are not mapped. In the above example, the top-level page directory has mappings for entry 0 and 255. The next level down for entry 0 has only index 0 mapped, and the bottom-level for that index 0 has entries 0, 1, and 2 mapped. 
 
 # Some hints:
-Use the macros at the end of the file kernel/riscv.h.
-The function freewalk may be inspirational.
-Define the prototype for vmprint in kernel/defs.h so that you can call it from exec.c.
-Eliminate allocation from sbrk()
-Your first task is to delete page allocation from the sbrk(n) system call implementation, which is the function sys_sbrk() in sysproc.c. The sbrk(n) system call grows the process's memory size by n bytes, and then returns the start of the newly allocated region (i.e., the old size). Your new sbrk(n) should just increment the process's size (myproc()->sz) by n and return the old size. It should not allocate memory -- so you should delete the call to growproc() (but you still need to increase the process's size!).
-Try to guess what the result of this modification will be: what will break?
+Use the macros at the end of the file kernel/riscv.h. <br />
+The function freewalk may be inspirational. <br />
+Define the prototype for vmprint in kernel/defs.h so that you can call it from exec.c. <br />
+Eliminate allocation from sbrk() <br />
+Your first task is to delete page allocation from the sbrk(n) system call implementation, which is the function sys_sbrk() in sysproc.c. The sbrk(n) system call grows the process's memory size by n bytes, and then returns the start of the newly allocated region (i.e., the old size). Your new sbrk(n) should just increment the process's size (myproc()->sz) by n and return the old size. It should not allocate memory -- so you should delete the call to growproc() (but you still need to increase the process's size!). <br />
+Try to guess what the result of this modification will be: what will break? <br />
 
-Make this modification, boot xv6, and type echo hi to the shell. You should see something like this:
+Make this modification, boot xv6, and type echo hi to the shell. You should see something like this: <br />
 
 init: starting sh <br />
 $ echo hiusertrap(): unexpected scause 0x000000000000000f pid=3 <br />
@@ -41,28 +41,28 @@ panic: uvmunmap: not mapped <br />
 The "usertrap(): ..." message is from the user trap handler in trap.c; it has caught an exception that it does not know how to handle. Make sure you understand why this page fault occurs. The "stval=0x0..04008" indicates that the virtual address that caused the page fault is 0x4008.
 
 # Lazy allocation
-Modify the code in trap.c to respond to a page fault from user space by mapping a newly-allocated page of physical memory at the faulting address, and then returning back to user space to let the process continue executing. You should add your code just before the printf call that produced the "usertrap(): ..." message. Your solution is acceptable if it passes usertests.
-A good way to start this lab is by fixing usertrap() in trap.c so that you can run "echo hi" in the shell again. Once that works, you will find some additional problems that have to be solved to make usertests to work correctly. Here are some hints to get going.
+Modify the code in trap.c to respond to a page fault from user space by mapping a newly-allocated page of physical memory at the faulting address, and then returning back to user space to let the process continue executing. You should add your code just before the printf call that produced the "usertrap(): ..." message. Your solution is acceptable if it passes usertests. <br />
+A good way to start this lab is by fixing usertrap() in trap.c so that you can run "echo hi" in the shell again. Once that works, you will find some additional problems that have to be solved to make usertests to work correctly. Here are some hints to get going. <br />
 
-You can check whether a fault is a page fault by seeing if r_scause() is 13 or 15 in usertrap().
-Look at the arguments to the printf() in usertrap() that reports the page fault, in order to see how to find the virtual address that caused the page fault.
-Steal code from uvmalloc() in vm.c, which is what sbrk() calls (via growproc()). You'll need to call kalloc() and mappages().
-Use PGROUNDDOWN(va) to round the faulting virtual address down to a page boundary.
-uvmunmap() will panic; modify it to not panic if some pages aren't mapped.
-If the kernel crashes, look up sepc in kernel/kernel.asm
-Use your print function from above to print the content of a page table.
-If you see the error "incomplete type proc", include "proc.h" (and "spinlock.h").
-If all goes well, your lazy allocation code should result in echo hi working. You should get at least one page fault (and thus lazy allocation) in the shell, and perhaps two.
+You can check whether a fault is a page fault by seeing if r_scause() is 13 or 15 in usertrap(). <br />
+Look at the arguments to the printf() in usertrap() that reports the page fault, in order to see how to find the virtual address that caused the page fault. <br />
+Steal code from uvmalloc() in vm.c, which is what sbrk() calls (via growproc()). You'll need to call kalloc() and mappages(). <br />
+Use PGROUNDDOWN(va) to round the faulting virtual address down to a page boundary. <br />
+uvmunmap() will panic; modify it to not panic if some pages aren't mapped. <br />
+If the kernel crashes, look up sepc in kernel/kernel.asm <br />
+Use your print function from above to print the content of a page table. <br />
+If you see the error "incomplete type proc", include "proc.h" (and "spinlock.h"). <br />
+If all goes well, your lazy allocation code should result in echo hi working. You should get at least one page fault (and thus lazy allocation) in the shell, and perhaps two. <br />
 
 Usertests
 Now you have the basics working, fix your code so that all of usertests passes:
 
-Handle negative sbrk() arguments.
-Kill a process if it page-faults on a virtual memory address higher than any allocated with sbrk().
-Handle fork() correctly.
-Handle the case in which a process passes a valid address from sbrk() to a system call such as read or write, but the memory for that address has not yet been allocated.
-Handle out-of-memory correctly: if kalloc() fails in the page fault handler, kill the current process.
-Handle faults on the invalid page below the stack.
+Handle negative sbrk() arguments. <br />
+Kill a process if it page-faults on a virtual memory address higher than any allocated with sbrk(). <br />
+Handle fork() correctly. <br />
+Handle the case in which a process passes a valid address from sbrk() to a system call such as read or write, but the memory for that address has not yet been allocated. <br />
+Handle out-of-memory correctly: if kalloc() fails in the page fault handler, kill the current process. <br />
+Handle faults on the invalid page below the stack. <br />
 Your solution is acceptable if your kernel passes lazytests and usertests: <br />
 
 $  lazytests <br />
