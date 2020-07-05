@@ -143,14 +143,14 @@ xargs, find, and grep combine well: <br />
 will run "grep hello" on each file named b in the directories below ".". <br />
 To test your solution for xargs, run the shell script xargstest.sh. Your solution is correct if it produces the following output: <br />
 
-  $ make qemu 
-  ... 
-  init: starting sh 
-  $ sh < xargstest.sh 
-  $ $ $ $ $ $ hello 
-  hello 
-  hello 
-  $ $  
+  $ make qemu  <br />
+  ...  <br />
+  init: starting sh  <br />
+  $ sh < xargstest.sh  <br />
+  $ $ $ $ $ $ hello  <br />
+  hello  <br />
+  hello  <br />
+  $ $   <br />
   
 You may have to fix bugs in your find program. The output has many $ because the xv6 shell is primitive and doesn't realize it is processing commands from a file instead of from the console, and prints a $ for each command in the file. <br />
 ![Test Image 1](result.png)
