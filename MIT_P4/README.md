@@ -21,7 +21,9 @@ page table 0x0000000087f6e000 <br />
  .. .. ..510: pte 0x0000000021fdd807 pa 0x0000000087f76000 <br />
  .. .. ..511: pte 0x000000002000200b pa 0x0000000080008000 <br />
   
-The first line prints the address of the argument of vmprint. Each PTE line shows the PTE index in its page directory, the pte, the physical address for the PTE. The output should also indicate the level of the page directory: the top-level entries are preceeded by "..", the next level down with another "..", and so on. You should not print entries that are not mapped. In the above example, the top-level page directory has mappings for entry 0 and 255. The next level down for entry 0 has only index 0 mapped, and the bottom-level for that index 0 has entries 0, 1, and 2 mapped. Some hints:
+The first line prints the address of the argument of vmprint. Each PTE line shows the PTE index in its page directory, the pte, the physical address for the PTE. The output should also indicate the level of the page directory: the top-level entries are preceeded by "..", the next level down with another "..", and so on. You should not print entries that are not mapped. In the above example, the top-level page directory has mappings for entry 0 and 255. The next level down for entry 0 has only index 0 mapped, and the bottom-level for that index 0 has entries 0, 1, and 2 mapped. 
+
+#Some hints:
 Use the macros at the end of the file kernel/riscv.h.
 The function freewalk may be inspirational.
 Define the prototype for vmprint in kernel/defs.h so that you can call it from exec.c.
