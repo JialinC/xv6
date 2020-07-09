@@ -1,0 +1,10 @@
+Which registers contain arguments to functions? For example, which register holds 13 in main's call to printf?
+a0,a1,a2
+
+Where is the function call to f from main? Where is the call to g? (Hint: the compiler may inline functions.)
+
+At what address is the function printf located?
+650 <printf>
+
+What value is in the register ra just after the jalr to printf in main?
+ra	0x38	0x38	<main+28>
