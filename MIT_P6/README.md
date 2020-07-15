@@ -121,7 +121,7 @@ Only invoke the alarm function if the process has a timer outstanding. Note that
 It will be easier to look at traps with gdb if you tell qemu to use only one CPU, which you can do by running
     make CPUS=1 qemu-gdb<br />
 You've succeeded if alarmtest prints "alarm!".<br />
-# test1(): resume interrupted code<br />
+# test1(): resume interrupted code
 Chances are that alarmtest crashes in test0 or test1 after it prints "alarm!", or that alarmtest (eventually) prints "test1 failed", or that alarmtest exits without printing "test1 passed". To fix this, you must ensure that, when the alarm handler is done, control returns to the instruction at which the user program was originally interrupted by the timer interrupt. You must ensure that the register contents are restored to the values they held at the time of the interrupt, so that the user program can continue undisturbed after the alarm. Finally, you should "re-arm" the alarm counter after each time it goes off, so that the handler is called periodically.
 As a starting point, we've made a design decision for you: user alarm handlers are required to call the sigreturn system call when they have finished. Have a look at periodic in alarmtest.c for an example. This means that you can add code to usertrap and sys_sigreturn that cooperate to cause the user process to resume properly after it has handled the alarm.
 
@@ -132,5 +132,5 @@ Have usertrap save enough state in struct proc when the timer goes off that sigr
 Prevent re-entrant calls to the handler----if a handler hasn't returned yet, the kernel shouldn't call it again.
 Once you pass test0 and test1, run usertests to make sure you didn't break any other parts of the kernel.
 
-This completes the lab. Make sure you pass all of the make grade tests and don't forget to write up your answers to the questions in answers-syscall.txt. Commit your changes (including adding answers-syscall.txt) and type make handin in the lab directory to hand in your lab.
+This completes the lab. Make sure you pass all of the make grade tests and don't forget to write up your answers to the questions in answers-syscall.txt. Commit your changes (including adding answers-syscall.txt) and type make handin in the lab directory to hand in your lab.<br />
 ![Test Image 1](result.png)
